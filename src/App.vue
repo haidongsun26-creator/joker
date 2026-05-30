@@ -13,6 +13,7 @@ import { buildDeck, shuffle, detectHand, scoreHand, HAND_TYPES } from './game/ca
 import { JOKER_LIBRARY } from './game/jokers.js'
 import { BLINDS, blindReward } from './game/blinds.js'
 import { bestPlay, shopSuggestion } from './game/ai.js'
+import cardBack from './assets/card-back.jpeg'
 
 const HAND_SIZE = 8
 const SLOT_MAX = 5
@@ -471,9 +472,9 @@ onMounted(() => {
         <!-- 牌堆（absolute 内嵌出牌区右下，PRD §4.4） -->
         <div v-show="gameState === 'playing'" ref="deckRef" class="deck">
           <div class="deck-pile">
-            <span class="deck-layer l3"></span>
-            <span class="deck-layer l2"></span>
-            <span class="deck-layer l1"></span>
+            <span class="deck-layer l3" :style="{ backgroundImage: `url(${cardBack})` }"></span>
+            <span class="deck-layer l2" :style="{ backgroundImage: `url(${cardBack})` }"></span>
+            <span class="deck-layer l1" :style="{ backgroundImage: `url(${cardBack})` }"></span>
           </div>
           <div class="deck-count">{{ deck.length }}/52</div>
         </div>
@@ -709,7 +710,10 @@ onMounted(() => {
 .deck-layer {
   position: absolute;
   inset: 0;
-  background: linear-gradient(135deg, #6b3ec9, #2d0d6e);
+  background-color: #c81e2d;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
   border: 2px solid #1a0f24;
   border-radius: 8px;
 }
