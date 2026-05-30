@@ -1,0 +1,247 @@
+/* ============================================================
+   全局样式 + 设计令牌（DESIGN §1 / PRD §4）
+   ============================================================ */
+:root {
+  /* 背景色板（DESIGN §1 / PRD §10.3 硬锁定 —— 深蓝水纹，不偏紫） */
+  --bg-main: #0a1438;
+  --panel: #111e44;
+  --inset: #050818;
+  --gold: #ffc857;
+  --money: #ffb030;
+  --text-light: #ffffff;
+  --text-dim: #c9d2e8;
+  --muted: #8a9bbf;
+
+  /* chips × mult 水彩块 */
+  --chips-blue: linear-gradient(135deg, #4dd6ff, #2196f3);
+  --mult-red: linear-gradient(135deg, #ff8844, #ff3344);
+
+  /* Joker 纸黄底 */
+  --joker-paper: linear-gradient(180deg, #fff8e1, #f7e9c4);
+
+  /* 稀有度（DESIGN §2.2 / PRD §2.2） */
+  --rarity-common: #6cb4d3;
+  --rarity-uncommon: #5bc97a;
+  --rarity-rare: #e34b6f;
+  --rarity-legendary: #b577ff;
+
+  /* 字体令牌（DESIGN §3.5 硬锁定） */
+  --font-ui: 'Inter', 'PingFang SC', 'Microsoft YaHei', system-ui, sans-serif;
+  --font-lcd: 'VT323', monospace;
+  --font-pixel: 'Press Start 2P', monospace;
+
+  /* 动画全局倍率（设置面板「动画速度」控制：慢 1.5 / 普通 1 / 快 0.6） */
+  --anim-scale: 1;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+}
+
+body {
+  /* 整页 100vh 充满，不允许页面级滚动条（PRD §4.1） */
+  overflow: hidden;
+  color: var(--text-light);
+  font-family: var(--font-ui);
+  font-size: 15px;
+  -webkit-font-smoothing: antialiased;
+  background:
+    radial-gradient(ellipse 80% 60% at 50% 40%, rgba(45, 64, 128, 0.6), transparent 70%),
+    radial-gradient(ellipse 120% 80% at 30% 70%, rgba(74, 107, 255, 0.15), transparent 60%),
+    repeating-linear-gradient(45deg, rgba(255, 255, 255, 0.012) 0 2px, transparent 2px 4px),
+    linear-gradient(135deg, #0a1438 0%, #1a2858 50%, #0a1438 100%);
+  background-attachment: fixed;
+}
+
+#app {
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
+}
+
+/* ---------- 通用按钮 .px-btn（PRD §4.6 / DESIGN §3.6 v4 最终版） ---------- */
+.px-btn {
+  min-height: 52px;
+  padding: 14px 26px;
+  font-family: var(--font-ui);
+  font-size: 16px;
+  font-weight: 800;
+  letter-spacing: 1.2px;
+  color: #fff;
+  text-shadow: 0 2px 0 rgba(0, 0, 0, 0.45);
+  border-radius: 12px;
+  border: 2px solid rgba(0, 0, 0, 0.35);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  user-select: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  /* 默认即出牌（翠绿，最显眼） */
+  background: linear-gradient(180deg, #34d399 0%, #10b981 50%, #059669 100%);
+  box-shadow:
+    0 5px 0 #047857,
+    0 8px 18px rgba(16, 185, 129, 0.3),
+    inset 0 2px 0 rgba(255, 255, 255, 0.35);
+}
+.px-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  filter: brightness(1.1) saturate(1.15);
+}
+.px-btn:active:not(:disabled) {
+  transform: translateY(2px);
+  filter: brightness(0.92);
+}
+.px-btn:disabled {
+  opacity: 0.45;
+  filter: grayscale(0.3);
+  cursor: not-allowed;
+}
+
+/* 弃牌 / 重新开始（朱红） */
+.btn-discard,
+.btn-restart {
+  background: linear-gradient(180deg, #fb7185 0%, #ef4444 50%, #b91c1c 100%);
+  box-shadow:
+    0 5px 0 #991b1b,
+    0 8px 18px rgba(239, 68, 68, 0.3),
+    inset 0 2px 0 rgba(255, 255, 255, 0.35);
+}
+
+/* 排序（紫蓝 ghost） */
+.btn-sort {
+  font-size: 14px;
+  background: linear-gradient(180deg, rgba(99, 102, 241, 0.28), rgba(67, 56, 202, 0.2));
+  border: 2px solid rgba(129, 140, 248, 0.6);
+  box-shadow:
+    0 3px 0 rgba(49, 46, 129, 0.5),
+    inset 0 2px 0 rgba(255, 255, 255, 0.15);
+  color: #c7d2fe;
+}
+
+/* 设置（橙色） */
+.btn-settings {
+  background: linear-gradient(180deg, #fbbf24 0%, #f59e0b 50%, #d97706 100%);
+  box-shadow:
+    0 5px 0 #92400e,
+    0 8px 18px rgba(217, 119, 6, 0.3),
+    inset 0 2px 0 rgba(255, 255, 255, 0.35);
+}
+
+/* 商店跳过（蓝紫） */
+.btn-skip {
+  background: linear-gradient(180deg, #818cf8 0%, #6366f1 50%, #4338ca 100%);
+  box-shadow:
+    0 5px 0 #312e81,
+    0 8px 18px rgba(67, 56, 202, 0.3),
+    inset 0 2px 0 rgba(255, 255, 255, 0.35);
+}
+
+/* AI 出牌（紫色霓虹，§5.5） */
+.btn-ai {
+  font-size: 15px;
+  background: linear-gradient(180deg, #c084fc 0%, #a855f7 50%, #7e22ce 100%);
+  box-shadow:
+    0 5px 0 #6b21a8,
+    0 8px 18px rgba(168, 85, 247, 0.4),
+    inset 0 2px 0 rgba(255, 255, 255, 0.35);
+}
+.btn-ai.thinking {
+  animation: ai-pulse 0.8s ease-in-out infinite;
+}
+@keyframes ai-pulse {
+  0%,
+  100% {
+    box-shadow:
+      0 5px 0 #6b21a8,
+      0 0 0 rgba(168, 85, 247, 0.6),
+      inset 0 2px 0 rgba(255, 255, 255, 0.35);
+  }
+  50% {
+    box-shadow:
+      0 5px 0 #6b21a8,
+      0 0 22px 6px rgba(192, 132, 252, 0.9),
+      inset 0 2px 0 rgba(255, 255, 255, 0.35);
+  }
+}
+
+/* ---------- 飞字（蓝色 chips / 红色 mult，§5.1） ---------- */
+.fly-text {
+  position: fixed;
+  z-index: 9000;
+  font-family: var(--font-pixel);
+  font-size: 22px;
+  font-weight: 700;
+  pointer-events: none;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.6);
+  transition:
+    transform var(--fly-dur, 0.4s) ease-out,
+    opacity var(--fly-dur, 0.4s) ease-out;
+}
+.fly-text.chips {
+  color: #4dd6ff;
+}
+.fly-text.mult {
+  color: #ff5a44;
+}
+
+/* ---------- 飞行中的克隆牌（飞牌 / 发牌，§5.1 / §5.2） ---------- */
+.fly-card {
+  position: fixed;
+  z-index: 8000;
+  pointer-events: none;
+  transition: transform var(--fly-dur, 0.4s) cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* ---------- 计分公式爆字（§5.1 第 5 步） ---------- */
+.score-burst {
+  position: fixed;
+  z-index: 9500;
+  top: 42%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-family: var(--font-pixel);
+  font-size: 30px;
+  color: var(--gold);
+  text-shadow:
+    0 0 18px rgba(255, 215, 0, 0.8),
+    0 3px 0 #000;
+  pointer-events: none;
+  animation: score-burst-anim calc(0.9s * var(--anim-scale)) ease-out forwards;
+}
+@keyframes score-burst-anim {
+  0% {
+    transform: translate(-50%, -50%) scale(0.4);
+    opacity: 0;
+  }
+  20% {
+    transform: translate(-50%, -50%) scale(1.15);
+    opacity: 1;
+  }
+  80% {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(-50%, -55%) scale(1);
+    opacity: 0;
+  }
+}
+
+/* 滚动条美化 */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(129, 140, 248, 0.4);
+  border-radius: 3px;
+}

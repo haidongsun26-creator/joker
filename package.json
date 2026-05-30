@@ -1,0 +1,22 @@
+{
+  "name": "balatro-joker",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "description": "小丑牌 · Balatro 风格核心循环（第 1 轮）",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "build:pages": "cross-env DEPLOY_TARGET=pages vite build",
+    "preview": "vite preview",
+    "verify": "node scripts/verify-logic.mjs"
+  },
+  "dependencies": {
+    "vue": "^3.4.21"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^5.0.4",
+    "cross-env": "^7.0.3",
+    "vite": "^5.2.8"
+  }
+}
