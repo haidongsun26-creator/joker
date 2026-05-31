@@ -13,6 +13,7 @@ import { buildDeck, shuffle, detectHand, scoreHand, HAND_TYPES } from './game/ca
 import { JOKER_LIBRARY } from './game/jokers.js'
 import { BLINDS, blindReward } from './game/blinds.js'
 import { bestPlay, shopSuggestion } from './game/ai.js'
+import { audio } from './game/audio.js'
 import cardBack from './assets/card-back.jpeg'
 
 const HAND_SIZE = 8
@@ -42,6 +43,9 @@ function saveSettings(next) {
   Object.assign(settings, next)
   localStorage.setItem(SETTINGS_KEY, JSON.stringify({ ...settings }))
   applyAnimScale()
+  // 音量滑块实时联动
+  audio.setBgmVolume(settings.bgm)
+  audio.setSfxVolume(settings.sfx)
 }
 function applyAnimScale() {
   document.documentElement.style.setProperty('--anim-scale', String(animScale.value))
@@ -193,6 +197,7 @@ async function dealUpTo(target) {
 // ---------------- 选牌 / 排序 ----------------
 function toggleSelect(card) {
   if (isBusy.value) return
+  audio.unlock()
   const i = selectedIds.value.indexOf(card.id)
   if (i >= 0) {
     selectedIds.value.splice(i, 1)
@@ -200,14 +205,17 @@ function toggleSelect(card) {
     if (selectedIds.value.length >= 5) return // 已选 5 张不响应（PRD §1 选牌）
     selectedIds.value.push(card.id)
   }
+  audio.play('card-select')
 }
 function isSelected(card) {
   return selectedIds.value.includes(card.id)
 }
 function sortByRank() {
+  audio.play('button')
   hand.value.sort((a, b) => a.order - b.order || a.suit.localeCompare(b.suit))
 }
 function sortBySuit() {
+  audio.play('button')
   hand.value.sort((a, b) => a.suit.localeCompare(b.suit) || a.order - b.order)
 }
 
@@ -215,12 +223,14 @@ function sortBySuit() {
 async function handlePlay() {
   if (isBusy.value || selectedCards.value.length === 0) return
   isBusy.value = true
+  audio.unlock()
   suggestedId.value = ''
 
   const cards = [...selectedCards.value]
   const result = scoreHand(cards, ownedJokers.value)
 
   // 1. 选中牌飞向出牌区（≈350ms）
+  audio.play('card-play')
   const fromRects = cards.map((c) => cardWrapEl(c.id)?.getBoundingClientRect())
   const htmls = cards.map((c) => cardWrapEl(c.id)?.innerHTML || '')
   // 从手牌移除，放进出牌区（先隐藏出牌区真牌占位）
@@ -248,6 +258,7 @@ async function handlePlay() {
   for (const step of result.cardSteps) {
     highlightCardId.value = step.card.id
     battleChips.value += step.add
+    audio.play('chip')
     flyText(playedWrapEl(step.card.id), chipsBox, `+${step.add}`, 'chips', 400 * animScale.value)
     await wait(150)
   }
@@ -260,6 +271,7 @@ async function handlePlay() {
     triggeredJokerIds.value = new Set([...triggeredJokerIds.value, js.joker.id])
     battleChips.value = js.chips
     battleMult.value = js.mult
+    audio.play('joker-trigger')
     const target = js.kind === 'chips' ? chipsBox : multBox
     flyText(jokerWrapEl(js.joker.id), target, js.text, js.kind, 400 * animScale.value)
     await wait(300)
@@ -267,6 +279,7 @@ async function handlePlay() {
 
   // 5. 公式爆出（停留 800ms）
   scoreBurst.value = { chips: result.finalChips, mult: result.finalMult, score: result.score }
+  audio.play('score-burst')
   await wait(800)
   scoreBurst.value = null
   triggeredJokerIds.value = new Set()
@@ -291,6 +304,7 @@ async function handlePlay() {
   if (blindScore.value >= currentBlind.value.target) {
     passBlind()
   } else if (handsLeft.value <= 0) {
+    audio.play('lose')
     gameState.value = 'lost'
   }
 }
@@ -300,6 +314,8 @@ async function handleDiscard() {
   if (isBusy.value) return
   if (selectedCards.value.length < 1 || discardsLeft.value <= 0) return
   isBusy.value = true
+  audio.unlock()
+  audio.play('discard')
   const cards = [...selectedCards.value]
   hand.value = hand.value.filter((c) => !cards.includes(c))
   selectedIds.value = []
@@ -313,6 +329,7 @@ function passBlind() {
   // 大盲注通关 → won，不进商店（PRD §10.2 翻车点 5）
   money.value += blindReward(handsLeft.value)
   if (currentBlindIndex.value >= BLINDS.length - 1) {
+    audio.play('win')
     gameState.value = 'won'
     return
   }
@@ -333,9 +350,11 @@ function buyJoker(j) {
   ownedJokers.value.push({ ...j })
   const item = shopJokers.value.find((x) => x.id === j.id)
   if (item) item.sold = true
+  audio.play('buy')
 }
 
 function skipShop() {
+  audio.play('button')
   currentBlindIndex.value += 1
   round.value += 1
   startBlind()
@@ -361,6 +380,7 @@ async function startBlind() {
 
 // 全新一局（重新开始）
 function newGame() {
+  audio.unlock()
   money.value = 0
   ownedJokers.value = []
   currentBlindIndex.value = 0
@@ -372,6 +392,8 @@ function newGame() {
 // ---------------- AI（PRD §5.5） ----------------
 async function handleAI() {
   if (isBusy.value || aiThinking.value) return
+  audio.unlock()
+  audio.play('button')
   aiThinking.value = true
   await wait(800) // 思考态脉冲动画
   const best = bestPlay(hand.value, ownedJokers.value)
@@ -382,6 +404,7 @@ async function handleAI() {
 }
 
 function handleAISuggest() {
+  audio.play('button')
   suggestedId.value = shopSuggestion(shopJokers.value) || ''
 }
 
@@ -396,6 +419,7 @@ const handCountLabel = computed(() => `已选 ${selectedCards.value.length} / 5 
 
 onMounted(() => {
   loadSettings()
+  audio.init(settings) // 载入音频（音量取自已读回的设置）
   newGame()
 })
 </script>
@@ -403,7 +427,7 @@ onMounted(() => {
 <template>
   <div class="game">
     <!-- 右上角设置齿轮（PRD §5.4 / 文案 ⚙️） -->
-    <button class="gear-btn" @click="showSettings = true">⚙️</button>
+    <button class="gear-btn" @click="audio.unlock(); audio.play('button'); showSettings = true">⚙️</button>
 
     <SideBar
       :blind="currentBlind"
