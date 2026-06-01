@@ -2,6 +2,18 @@
 
 Balatro 风格的「扑克 + 小丑牌组合」游戏核心循环版本。基于 Vue 3 + Vite。
 
+## 🚀 换电脑接着用（先看这里）
+
+新电脑装好 [Node.js](https://nodejs.org)（≥ 18）后，三步即可恢复开发：
+
+```bash
+git clone https://github.com/haidongsun26-creator/joker.git
+cd joker
+npm install && npm run dev   # → http://localhost:5173
+```
+
+> `node_modules` 不必随项目携带，`npm install` 会按 `package-lock.json` 精确还原依赖。
+
 ## 玩法
 
 从 $0 / 0 张小丑牌开始，4 手内打到盲注目标分通关，进商店买卡变强，依次推进 3 关递增盲注（小盲注 300 → 中盲注 500 → 大盲注 800）。任意一关 4 手内未达标即失败。
